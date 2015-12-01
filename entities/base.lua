@@ -1,20 +1,15 @@
 local base = {}
 
-base.x = 0
-base.y = 0
-base.health = 1
+-- These should be set in derived entities
+base.body = nil
+base.shape = nil
+base.fixture = nil
 
-function base:setPosition(x, y)
-    base.x = x
-    base.y = y
-end
-
-function base:getPosition()
-    return base.x, base.y;
-end
-
--- This is a virtual method header (to be implemented by derived entities)
+-- Virtual method headers (to be implemented by derived entities)
 function base:load()
+end
+
+function base:update(dt)
 end
 
 return base;

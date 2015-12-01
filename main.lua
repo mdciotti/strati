@@ -25,9 +25,9 @@ function love.load()
         })
     end
 
-    local boxEnt = entities.create('box', 128, 128)
     level:load()
     level.camera:follow(player)
+    local boxEnt = entities.create('box', 128, 128)
 end
 
 function love.update(dt)

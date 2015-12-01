@@ -20,6 +20,14 @@ function player:move(dist)
     self.body:applyForce(ix, iy)
 end
 
+function player:fire()
+    local theta = self.body:getAngle()
+    local x = 16 * math.cos(theta) + self.body:getX()
+    local y = 16 * math.sin(theta) + self.body:getY()
+    local bullet = entities.create('bullet', x, y)
+    bullet:setDirection(theta)
+end
+
 function player:update(dt)
     local dx = (love.mouse.getX() + level.camera.body:getX()) - self.body:getX()
     local dy = (love.mouse.getY() + level.camera.body:getY()) - self.body:getY()
@@ -29,6 +37,10 @@ function player:update(dt)
         self:move(self.speed)
     elseif love.keyboard.isDown('down') or love.keyboard.isDown('s') then
         self:move(-self.speed)
+    end
+
+    if love.mouse.isDown('l') then
+        self:fire()
     end
 end
 

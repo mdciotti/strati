@@ -6,6 +6,7 @@ local id = 0
 
 function entities.startup()
     register['box'] = love.filesystem.load(entities.objectpath .. 'box.lua')
+    register['bullet'] = love.filesystem.load(entities.objectpath .. 'bullet.lua')
 end
 
 function entities.derive(name)
@@ -26,8 +27,7 @@ function entities.create(name, x, y)
     if register[name] then
         id = id + 1
         local ent = register[name]()
-        ent:load()
-        ent:setPosition(x, y)
+        ent:load(x, y)
         ent.id = id
         entities.objects[#entities.objects + 1] = ent
         return entities.objects[#entities.objects]
