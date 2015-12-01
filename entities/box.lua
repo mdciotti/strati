@@ -1,30 +1,19 @@
-local ent = entities.derive('base')
+local box = entities.derive('base')
 
-function ent:load(x, y)
-    self:setPosition(x, y)
-    self.width = 64
-    self.height = 64
+function box:load(x, y)
+    self.body = love.physics.newBody(level.world, love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 'dynamic')
+    self.shape = love.physics.newRectangleShape(32, 32)
+    self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
+    self.fixture:setRestitution(0.1)
+    self.body:setFixedRotation(false)
 end
 
-function ent:setSize(w, h)
-    self.width = w
-    self.height = h
+function box:update(dt)
 end
 
-function ent:getSize(w, h)
-    return self.width, self.height;
-end
-
-function ent:update(dt)
-    self.y = self.y + 32*dt
-end
-
-function ent:draw(dt)
-    local x, y = self:getPosition()
-    local w, h = self:getSize()
-
+function box:draw(dt)
     love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.rectangle('fill', x, y, w, h)
+    love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
 end
 
-return ent;
+return box;
