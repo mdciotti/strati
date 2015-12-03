@@ -12,4 +12,13 @@ end
 function base:update(dt)
 end
 
+-- This is an internal method to be called from the entities controller
+-- example: entities.destroy(id)
+function base:destroy()
+    -- self.body:destroy()
+    -- self.shape:destroy()
+    -- self.fixture:destroy()
+    print('destroying ' .. self.name .. ' ' .. self.id)
+end
+
 return base;

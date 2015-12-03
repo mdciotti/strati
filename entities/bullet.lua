@@ -6,7 +6,8 @@ function bullet:load(x, y)
     self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
     self.body:setFixedRotation(true)
     self.body:setBullet(true)
-    self.speed = 500
+    self.speed = 1000
+    self.birth = love.timer.getTime()
 end
 
 function bullet:setDirection(angle)
@@ -17,6 +18,14 @@ end
 
 
 function bullet:update(dt)
+    -- if love.timer.getTime() - self.birth > 3 then
+    --     entities.destroy(self.id)
+    -- end
+    -- local x = self.body:getX()
+    -- local y = self.body:getY()
+    -- if x < level.x or x > level.width or y < level.y or y > level.height then
+    --     entities.destroy(self.id)
+    -- end
 end
 
 function bullet:draw(dt)

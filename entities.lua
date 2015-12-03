@@ -29,6 +29,10 @@ function entities.create(name, x, y)
         local ent = register[name]()
         ent:load(x, y)
         ent.id = id
+        ent.type = name
+        if ent.fixture then
+            ent.fixture:setUserData(id)
+        end
         entities.objects[#entities.objects + 1] = ent
         return entities.objects[#entities.objects]
     else
@@ -38,9 +42,9 @@ function entities.create(name, x, y)
 end
 
 function entities.destroy(id)
-    if entites.objects[id] then
-        if entities.objects[id].die then
-            entities.objects[id]:die()
+    if entities.objects[id] then
+        if entities.objects[id].destroy then
+            entities.objects[id]:destroy()
         end
         entities.objects[id] = nil
     end
