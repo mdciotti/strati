@@ -15,10 +15,10 @@ end
 -- This is an internal method to be called from the entities controller
 -- example: entities.destroy(id)
 function base:destroy()
-    -- self.body:destroy()
+    self.fixture:destroy()
     -- self.shape:destroy()
-    -- self.fixture:destroy()
-    print('destroying ' .. self.name .. ' ' .. self.id)
+    -- self.body:destroy()
+    -- print('destroying ' .. self.type .. ' ' .. self.id)
 end
 
 return base;

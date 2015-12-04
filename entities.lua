@@ -16,6 +16,10 @@ function entities.derive(name)
     return register[name]()
 end
 
+function entities.get(id)
+    return entities.objects[id]
+end
+
 function entities.create(name, x, y)
     if not x then
         x = 0
@@ -33,8 +37,8 @@ function entities.create(name, x, y)
         if ent.fixture then
             ent.fixture:setUserData(id)
         end
-        entities.objects[#entities.objects + 1] = ent
-        return entities.objects[#entities.objects]
+        entities.objects[id] = ent
+        return ent
     else
         print('Error: entity "' .. '" does not exist in the register.')
         return false
@@ -50,7 +54,7 @@ function entities.destroy(id)
     end
 end
 
-function entities:update(dt)
+function entities.update(dt)
     for i, ent in pairs(entities.objects) do
         if ent.update then
             ent:update(dt)
@@ -58,7 +62,7 @@ function entities:update(dt)
     end
 end
 
-function entities:draw(dt)
+function entities.draw(dt)
     for i, ent in pairs(entities.objects) do
         if ent.draw then
             ent:draw(dt)

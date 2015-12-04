@@ -75,7 +75,7 @@ function love.update(dt)
 
     -- if not game.paused then
     level:update(dt)
-    entities:update(dt)
+    entities.update(dt)
     player:update(dt)
     -- end
 end
@@ -98,7 +98,7 @@ function love.draw()
         love.graphics.rectangle('line', v.x, v.y, v.width, v.height)
     end
 
-    entities:draw(dt)
+    entities.draw(dt)
 
     -- player
     player:draw(dt)

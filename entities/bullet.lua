@@ -18,14 +18,6 @@ end
 
 
 function bullet:update(dt)
-    -- if love.timer.getTime() - self.birth > 3 then
-    --     entities.destroy(self.id)
-    -- end
-    -- local x = self.body:getX()
-    -- local y = self.body:getY()
-    -- if x < level.x or x > level.width or y < level.y or y > level.height then
-    --     entities.destroy(self.id)
-    -- end
 end
 
 function bullet:draw(dt)

@@ -9,6 +9,7 @@ function box:load(x, y)
     self.body:setLinearDamping(3.5)
     self.speed = 100
     self.birth = love.timer.getTime()
+    self.health = 5
 end
 
 function box:move(dx, dy)
@@ -17,6 +18,10 @@ function box:move(dx, dy)
 end
 
 function box:update(dt)
+    if self.health <= 0 then
+        entities.destroy(self.id)
+    end
+
     -- Follow player
     local dx = player.body:getX() - self.body:getX()
     local dy = player.body:getY() - self.body:getY()

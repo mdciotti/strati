@@ -14,19 +14,40 @@ function collisions.beginContact(a, b, coll)
     local bodyA = a:getBody()
     local bodyB = b:getBody()
 
-    if bodyA:isBullet() and bodyB:isBullet() then
-        -- Ignore collision
-        -- coll:setEnabled(false)
-    elseif bodyA:isBullet() then
-        -- TODO: Destroy entity B
-        -- entities.destroy(b:getUserData())
-        -- TODO: Destroy bullet A
-        -- entities.destroy(a:getUserData())
-    elseif bodyB:isBullet() then
-        -- TODO: Destroy entity A
-        -- entities.destroy(a:getUserData())
-        -- TODO: Destroy bullet B
-        -- entities.destroy(b:getUserData())
+    local A = entities.get(a:getUserData())
+    local B = entities.get(b:getUserData())
+
+    -- Check for bullet collision with walls
+    if A == nil and B == nil then
+        -- No action if both objects are not entities
+        return
+    elseif A == nil and B ~= nil then
+        -- Remove bullet if one object is a wall and the other is a bullet
+        if bodyA:getType() == 'static' and B.type == 'bullet' then
+            entities.destroy(B.id)
+        end
+        return
+    elseif A ~= nil and B == nil then
+        -- Remove bullet if one object is a bullet and the other is a wall
+        if A.type == 'bullet' and bodyB:getType() == 'static' then
+            entities.destroy(A.id)
+        end
+        return
+    end
+
+    -- Do damage to enemies when colliding with bullets
+    if A.type == 'bullet' and B.type == 'box' then
+        B.health = B.health - player.weapon.damagePerBullet
+        entities.destroy(A.id)
+    elseif A.type == 'box' and B.type == 'bullet' then
+        A.health = A.health - player.weapon.damagePerBullet
+        entities.destroy(B.id)
+    elseif A.type == 'player' and B.type == 'box' then
+        -- A:die()
+        print('Player killed by ' .. B.type)
+    elseif A.type == 'box' and B.type == 'player' then
+        -- B:die()
+        print('Player killed by ' .. A.type)
     end
 end
 

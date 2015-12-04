@@ -13,16 +13,17 @@ player.fixture:setUserData('player')
 player.body:setFixedRotation(false)
 player.body:setLinearDamping(2.5)
 player.controller = nil
+player.type = 'player'
 
 player.canFire = true
 player.lastFired = 0
 
-local weapon = {}
-weapon.spread = 10 -- degrees
-weapon.shotsPerSecond = 10 -- shots per second
-weapon.bulletsPerShot = 1
--- weapon.damagePerBullet = 1
--- weapon.damagePerSecond = weapon.damagePerBullet * weapon.bulletsPerShot * weapon.shotsPerSecond
+player.weapon = {}
+player.weapon.spread = 10 -- degrees
+player.weapon.shotsPerSecond = 10 -- shots per second
+player.weapon.bulletsPerShot = 1
+player.weapon.damagePerBullet = 1
+-- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
 
 function player:move(dist, angle)
     if dist > 0 then
@@ -38,7 +39,7 @@ end
 
 function player:fire()
     local dt = love.timer.getTime() - player.lastFired
-    if dt * weapon.shotsPerSecond < 1 or not player.canFire then
+    if dt * player.weapon.shotsPerSecond < 1 or not player.canFire then
         return
     end
 
@@ -47,10 +48,10 @@ function player:fire()
     -- Set bullet start position slightly in front of player
     local x = 1.25 * player.hitRadius * math.cos(theta) + self.body:getX()
     local y = 1.25 * player.hitRadius * math.sin(theta) + self.body:getY()
-    local spread = math.rad(weapon.spread)
+    local spread = math.rad(player.weapon.spread)
     local vx, vy = self.body:getLinearVelocity()
 
-    if weapon.bulletsPerShot == 1 then
+    if player.weapon.bulletsPerShot == 1 then
         -- Add variance to the direction, within (-spread/2, +spread/2) degrees
         local angle = theta - spread / 2 + spread * math.random()
         local bullet = entities.create('bullet', x, y)
@@ -61,7 +62,7 @@ function player:fire()
         self.body:applyLinearImpulse(-fx, -fy)
     else
         -- Fire n+1 bullets
-        local n = weapon.bulletsPerShot - 1
+        local n = player.weapon.bulletsPerShot - 1
         for i = 0, n do
             local bullet = entities.create('bullet', x, y)
             local angle = theta - spread / 2 + i * spread / n
@@ -149,13 +150,13 @@ function player:draw(dt)
     -- Debug firing lines
     if debug then
         local theta = self.body:getAngle()
-        local n = weapon.bulletsPerShot - 1
+        local n = player.weapon.bulletsPerShot - 1
         local x = 1.25 * player.hitRadius * math.cos(theta) + self.body:getX()
         local y = 1.25 * player.hitRadius * math.sin(theta) + self.body:getY()
-        local spread = math.rad(weapon.spread)
+        local spread = math.rad(player.weapon.spread)
         love.graphics.setColor(255, 0, 0, 128)
 
-        if weapon.bulletsPerShot == 1 then
+        if player.weapon.bulletsPerShot == 1 then
             local fx = 100 * math.cos(theta)
             local fy = 100 * math.sin(theta)
             love.graphics.line(x, y, x + fx, y + fy)
