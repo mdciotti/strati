@@ -53,16 +53,31 @@ function love.load()
     local boxEnt = entities.create('box', 128, 128)
 end
 
+function love.joystickadded(joystick)
+    if joystick:isGamepad() then
+        -- TODO: confirm joystick has required layout
+        local name_id = joystick:getName() .. ' ' .. joystick:getID()
+        print('A controller was connected (' .. name_id .. ')')
+        player:registerController(joystick)
+    end
+end
+
+function love.joystickremoved(joystick)
+    local name_id = joystick:getName() .. ' ' .. joystick:getID()
+    print('A controller was disconnected (' .. name_id .. ')')
+    -- TODO: pause game
+end
+
 function love.update(dt)
     if love.keyboard.isDown('escape') then
         love.event.push('quit')
     end
 
+    -- if not game.paused then
     level:update(dt)
     entities:update(dt)
     player:update(dt)
-
-    -- camera:setPosition(player.body:getX() - width / 2, player.body:getY() - height / 2)
+    -- end
 end
 
 function love.draw()

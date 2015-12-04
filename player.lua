@@ -12,6 +12,7 @@ player.fixture:setRestitution(0.1)
 player.fixture:setUserData('player')
 player.body:setFixedRotation(false)
 player.body:setLinearDamping(2.5)
+player.controller = nil
 
 player.canFire = true
 player.lastFired = 0
@@ -73,44 +74,70 @@ function player:fire()
         end
     end
 
-    player.lastFired = love.timer.getTime()
+    self.lastFired = love.timer.getTime()
+end
+
+function player:registerController(joystick)
+    if not self.controller or not self.controller:isConnected() then
+        self.controller = joystick
+    end
 end
 
 function player:update(dt)
-    local dx = (love.mouse.getX() + level.camera.body:getX()) - self.body:getX()
-    local dy = (love.mouse.getY() + level.camera.body:getY()) - self.body:getY()
-    self.body:setAngle(math.atan2(dy, dx))
+    if self.controller ~= nil then
+        -- getGamepadAxis returns a value between -1 and 1 (0 at rest)
+        -- Movement
+        local leftX = self.controller:getGamepadAxis('leftx')
+        local leftY = self.controller:getGamepadAxis('lefty')
+        self:move(self.speed, math.atan2(leftY, leftX) + math.pi / 2)
 
-    local dist = 0
-    local dirX = 0
-    local dirY = 0
+        -- Direction
+        local rightX = self.controller:getGamepadAxis('rightx')
+        local rightY = self.controller:getGamepadAxis('righty')
+        self.body:setAngle(math.atan2(rightY, rightX))
 
-    local up = love.keyboard.isDown('up') or love.keyboard.isDown('w')
-    local left = love.keyboard.isDown('left') or love.keyboard.isDown('a')
-    local down = love.keyboard.isDown('down') or love.keyboard.isDown('s')
-    local right = love.keyboard.isDown('right') or love.keyboard.isDown('d')
+        -- Fire weapon
+        local trigger = self.controller:getGamepadAxis('triggerright')
+        if trigger > 0.5 then
+            self:fire()
+        end
 
-    if up and right then
-        self:move(self.speed, math.pi / 4)
-    elseif up and left then
-        self:move(self.speed, -math.pi / 4)
-    elseif down and left then
-        self:move(self.speed, -3 * math.pi / 4)
-    elseif down and right then
-        self:move(self.speed, 3 * math.pi / 4)
-    elseif up then
-        self:move(self.speed, 0)
-    elseif down then
-        self:move(self.speed, math.pi)
-    elseif left then
-        self:move(self.speed, -math.pi / 2)
-    elseif right then
-        self:move(self.speed, math.pi / 2)
-    end
+    else
+        -- Use keyboard + mouse
+        local dx = (love.mouse.getX() + level.camera.body:getX()) - self.body:getX()
+        local dy = (love.mouse.getY() + level.camera.body:getY()) - self.body:getY()
+        self.body:setAngle(math.atan2(dy, dx))
 
+        local dist = 0
+        local dirX = 0
+        local dirY = 0
 
-    if love.mouse.isDown('l') and player.canFire then
-        self:fire()
+        local up = love.keyboard.isDown('up') or love.keyboard.isDown('w')
+        local left = love.keyboard.isDown('left') or love.keyboard.isDown('a')
+        local down = love.keyboard.isDown('down') or love.keyboard.isDown('s')
+        local right = love.keyboard.isDown('right') or love.keyboard.isDown('d')
+
+        if up and right then
+            self:move(self.speed, math.pi / 4)
+        elseif up and left then
+            self:move(self.speed, -math.pi / 4)
+        elseif down and left then
+            self:move(self.speed, -3 * math.pi / 4)
+        elseif down and right then
+            self:move(self.speed, 3 * math.pi / 4)
+        elseif up then
+            self:move(self.speed, 0)
+        elseif down then
+            self:move(self.speed, math.pi)
+        elseif left then
+            self:move(self.speed, -math.pi / 2)
+        elseif right then
+            self:move(self.speed, math.pi / 2)
+        end
+
+        if love.mouse.isDown('l') then
+            self:fire()
+        end
     end
 end
 
