@@ -1,5 +1,4 @@
 require('level')
-require('player')
 require('entities')
 
 debug = false
@@ -33,8 +32,8 @@ function love.load()
     love.graphics.setBlendMode('additive')
 
     entities.startup()
-    width = love.graphics.getWidth()
-    height = love.graphics.getHeight()
+    local width = love.graphics.getWidth()
+    local height = love.graphics.getHeight()
 
     stuff = {}
 
@@ -49,7 +48,6 @@ function love.load()
     end
 
     level:load()
-    level.camera:follow(player)
 end
 
 function love.joystickadded(joystick)
@@ -75,7 +73,6 @@ function love.update(dt)
     -- if not game.paused then
     level:update(dt)
     entities.update(dt)
-    player:update(dt)
     -- end
 end
 
@@ -98,9 +95,6 @@ function love.draw()
     end
 
     entities.draw(dt)
-
-    -- player
-    player:draw(dt)
 
     level.camera:unset()
 end

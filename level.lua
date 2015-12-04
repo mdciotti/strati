@@ -10,6 +10,9 @@ level.world = love.physics.newWorld(0, 0, level.width, level.height, 0, 0, true)
 level.world:setCallbacks(collisions.beginContact, collisions.endContact, collisions.preSolve, collisions.postSolve)
 level.world:setContactFilter(collisions.contactFilter)
 level.camera = require('camera')
+level.player = nil
+level.respawningPlayer = false
+level.respawnPlayerAt = nil
 level.spawners = {}
 local spawn_id = 0
 
@@ -54,19 +57,36 @@ function level:load()
         maxCount = 10, -- the maximum number of entities that will spawn
         lastSpawned = self.initialTime -- the time at which the last entity was spawned
     }
+
+    -- Create player
+    self:respawnPlayer(0)
+end
+
+-- Respawns a player after `delay` seconds
+function level:respawnPlayer(delay)
+    self.respawningPlayer = true
+    self.respawnPlayerAt = love.timer.getTime() + delay
 end
 
 function level:update(dt)
     self.world:update(dt)
     self.camera:update(dt)
+    local now = love.timer.getTime()
+
+    -- Respawn player if needed
+    if self.respawningPlayer and now >= self.respawnPlayerAt then
+        self.player = entities.create('player', self.width / 2, self.height / 2)
+        self.camera:follow(self.player)
+        self.respawningPlayer = false
+    end
 
     -- Spawn enemies
-    local now = love.timer.getTime()
     for i, spawn in pairs(self.spawners) do
         if now - spawn.lastSpawned > spawn.interval then
             -- Spawn an entity
             spawn.lastSpawned = now
-            entities.create(spawn.type, spawn.x, spawn.y)
+            local enemy = entities.create(spawn.type, spawn.x, spawn.y)
+            enemy:setTarget(self.player)
 
             -- Remove spawner when it has spawned more than maxCount
             spawn.count = spawn.count + 1

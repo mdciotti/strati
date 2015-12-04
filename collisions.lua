@@ -11,6 +11,18 @@ function collisions.contactFilter(a, b)
 end
 
 function collisions.beginContact(a, b, coll)
+end
+
+function collisions.endContact(a, b, coll)
+
+end
+
+function collisions.preSolve(a, b, coll)
+
+end
+
+function collisions.postSolve(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)
+
     local bodyA = a:getBody()
     local bodyB = b:getBody()
 
@@ -37,28 +49,16 @@ function collisions.beginContact(a, b, coll)
 
     -- Do damage to enemies when colliding with bullets
     if A.type == 'bullet' and B.type == 'box' then
-        B.health = B.health - player.weapon.damagePerBullet
+        B:hit(A.owner.weapon.damagePerBullet)
         entities.destroy(A.id)
     elseif A.type == 'box' and B.type == 'bullet' then
-        A.health = A.health - player.weapon.damagePerBullet
+        A:hit(B.owner.weapon.damagePerBullet)
         entities.destroy(B.id)
     elseif A.type == 'player' and B.type == 'box' then
-        -- A:die()
-        print('Player killed by ' .. B.type)
+        A:die()
+        -- print('Player killed by ' .. B.type)
     elseif A.type == 'box' and B.type == 'player' then
-        -- B:die()
-        print('Player killed by ' .. A.type)
+        B:die()
+        -- print('Player killed by ' .. A.type)
     end
-end
-
-function collisions.endContact(a, b, coll)
-
-end
-
-function collisions.preSolve(a, b, coll)
-
-end
-
-function collisions.postSolve(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)
-
 end

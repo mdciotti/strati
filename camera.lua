@@ -32,6 +32,10 @@ function camera2:follow(entity)
     self.body:setLinearVelocity(0, 0)
 end
 
+function camera2:unfollow()
+    self.following = nil
+end
+
 function camera2:update(dt)
     if self.following then
         -- Apply spring force

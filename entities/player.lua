@@ -1,17 +1,9 @@
-player = {}
-player.x = 0
-player.y = 0
+local player = entities.derive('base')
+
 player.hitRadius = 16
 player.speed = 300
 player.color = { 240, 240, 240 }
 player.vertices = {16,8, 8,16, -7,16, -16,7, -16,-7, -7,-16, 8,-16, 16,-8, -3,-8, -7,-4, -7,4, -3,8}
-player.body = love.physics.newBody(level.world, love.graphics.getWidth() / 2, love.graphics.getHeight() / 2, 'dynamic')
-player.shape = love.physics.newCircleShape(player.hitRadius)
-player.fixture = love.physics.newFixture(player.body, player.shape, 0.25)
-player.fixture:setRestitution(0.1)
-player.fixture:setUserData('player')
-player.body:setFixedRotation(false)
-player.body:setLinearDamping(2.5)
 player.controller = nil
 player.type = 'player'
 
@@ -24,6 +16,23 @@ player.weapon.shotsPerSecond = 10 -- shots per second
 player.weapon.bulletsPerShot = 1
 player.weapon.damagePerBullet = 1
 -- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
+
+function player:load(x, y)
+    self.birth = love.timer.getTime()
+    self.body = love.physics.newBody(level.world, x, y, 'dynamic')
+    self.shape = love.physics.newCircleShape(self.hitRadius)
+    self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
+    self.fixture:setRestitution(0.1)
+    self.fixture:setUserData('player')
+    self.body:setFixedRotation(false)
+    self.body:setLinearDamping(2.5)
+end
+
+function player:die()
+    level.camera:unfollow()
+    entities.destroy(self.id)
+    level:respawnPlayer(3)
+end
 
 function player:move(dist, angle)
     if dist > 0 then
@@ -55,6 +64,7 @@ function player:fire()
         -- Add variance to the direction, within (-spread/2, +spread/2) degrees
         local angle = theta - spread / 2 + spread * math.random()
         local bullet = entities.create('bullet', x, y)
+        bullet:setOwner(self)
         local fx = bullet.speed * math.cos(angle) / 100
         local fy = bullet.speed * math.sin(angle) / 100
         bullet.body:setLinearVelocity(vx, vy)
@@ -64,9 +74,9 @@ function player:fire()
         -- Fire n+1 bullets
         local n = player.weapon.bulletsPerShot - 1
         for i = 0, n do
-            local bullet = entities.create('bullet', x, y)
             local angle = theta - spread / 2 + i * spread / n
-
+            local bullet = entities.create('bullet', x, y)
+            bullet:setOwner(self)
             local fx = bullet.speed * math.cos(angle) / 100
             local fy = bullet.speed * math.sin(angle) / 100
             bullet.body:setLinearVelocity(vx, vy)
@@ -182,3 +192,5 @@ function player:draw(dt)
     -- love.graphics.circle('line', self.body:getX(), self.body:getY(), self.shape:getRadius())
     love.graphics.pop()
 end
+
+return player;

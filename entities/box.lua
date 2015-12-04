@@ -1,5 +1,7 @@
 local box = entities.derive('base')
 
+box.vertices = {0,0, 0,16, 16,16, 0,0, 16,0, 16,-16, 0,0, 0,-16, -16,-16, 0,0, -16,0, -16,16}
+
 function box:load(x, y)
     self.body = love.physics.newBody(level.world, x, y, 'dynamic')
     self.shape = love.physics.newRectangleShape(32, 32)
@@ -10,6 +12,14 @@ function box:load(x, y)
     self.speed = 100
     self.birth = love.timer.getTime()
     self.health = 5
+end
+
+function box:hit(damage)
+    self.health = self.health - damage
+end
+
+function box:setTarget(player)
+    self.target = player
 end
 
 function box:move(dx, dy)
@@ -23,9 +33,13 @@ function box:update(dt)
     end
 
     -- Follow player
-    local dx = player.body:getX() - self.body:getX()
-    local dy = player.body:getY() - self.body:getY()
-    self:move(dx, dy)
+    if self.target ~= nil then
+        local dx = self.target.body:getX() - self.body:getX()
+        local dy = self.target.body:getY() - self.body:getY()
+        self:move(dx, dy)
+    else
+        -- Wander?
+    end
 
     -- Spin
     local t = love.timer.getTime()
@@ -34,7 +48,7 @@ end
 
 function box:draw(dt)
     love.graphics.setColor(255, 0, 255, 255)
-    love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
+    love.graphics.polygon('line', self.body:getWorldPoints(unpack(self.vertices)))
 end
 
 return box;

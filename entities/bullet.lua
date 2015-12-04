@@ -8,12 +8,11 @@ function bullet:load(x, y)
     self.body:setBullet(true)
     self.speed = 1000
     self.birth = love.timer.getTime()
+    self.owner = nil
 end
 
-function bullet:setDirection(angle)
-    local vx = self.speed * math.cos(angle)
-    local vy = self.speed * math.sin(angle)
-    self.body:setLinearVelocity(vx, vy)
+function bullet:setOwner(player)
+    self.owner = player
 end
 
 

@@ -5,6 +5,7 @@ local register = {}
 local id = 0
 
 function entities.startup()
+    register['player'] = love.filesystem.load(entities.objectpath .. 'player.lua')
     register['box'] = love.filesystem.load(entities.objectpath .. 'box.lua')
     register['bullet'] = love.filesystem.load(entities.objectpath .. 'bullet.lua')
 end

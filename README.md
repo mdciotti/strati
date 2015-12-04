@@ -9,6 +9,9 @@ This project reimagines my work from another game attempt in raw C++ and OpenGL.
 
 * [ ] Support multiple players/controllers
 * [ ] Background effect
+* [ ] Glow effect
 * [ ] Pickups
-* [ ] Player weapon setting
+* [ ] Split weapon into own class
 * [ ] Game menus
+* [ ] Level loading
+* [ ] Multiple enemy types
