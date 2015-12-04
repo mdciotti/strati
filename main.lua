@@ -50,7 +50,6 @@ function love.load()
 
     level:load()
     level.camera:follow(player)
-    local boxEnt = entities.create('box', 128, 128)
 end
 
 function love.joystickadded(joystick)

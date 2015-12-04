@@ -10,8 +10,11 @@ level.world = love.physics.newWorld(0, 0, level.width, level.height, 0, 0, true)
 level.world:setCallbacks(collisions.beginContact, collisions.endContact, collisions.preSolve, collisions.postSolve)
 level.world:setContactFilter(collisions.contactFilter)
 level.camera = require('camera')
+level.spawners = {}
+local spawn_id = 0
 
 function level:load()
+    self.initialTime = love.timer.getTime()
     self.camera:load()
 
     love.physics.setMeter(32)
@@ -39,11 +42,39 @@ function level:load()
     self.wall_left.body = love.physics.newBody(self.world, -10, self.height / 2)
     self.wall_left.shape = love.physics.newRectangleShape(20, self.height)
     self.wall_left.fixture = love.physics.newFixture(self.wall_left.body, self.wall_left.shape)
+
+    -- Create spawners
+    spawn_id = spawn_id + 1
+    self.spawners[spawn_id] = {
+        type = 'box', -- the type of entity to spawn
+        x = 50, -- the x position of the spawn
+        y = 50, -- the y position of the spawn
+        interval = 1, -- the time in seconds between successive entity spawns
+        count = 0, -- the number of entities that have spawned
+        maxCount = 10, -- the maximum number of entities that will spawn
+        lastSpawned = self.initialTime -- the time at which the last entity was spawned
+    }
 end
 
 function level:update(dt)
     self.world:update(dt)
     self.camera:update(dt)
+
+    -- Spawn enemies
+    local now = love.timer.getTime()
+    for i, spawn in pairs(self.spawners) do
+        if now - spawn.lastSpawned > spawn.interval then
+            -- Spawn an entity
+            spawn.lastSpawned = now
+            entities.create(spawn.type, spawn.x, spawn.y)
+
+            -- Remove spawner when it has spawned more than maxCount
+            spawn.count = spawn.count + 1
+            if spawn.count >= spawn.maxCount then
+                table.remove(self.spawners, i)
+            end
+        end
+    end
 end
 
 function level:draw(dt)
