@@ -15,3 +15,4 @@ This project reimagines my work from another game attempt in raw C++ and OpenGL.
 * [ ] Game menus
 * [ ] Level loading
 * [ ] Multiple enemy types
+* [ ] Enemy and player death effects

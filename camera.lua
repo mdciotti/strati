@@ -27,8 +27,8 @@ end
 
 function camera2:follow(entity)
     self.following = entity
-    self.body:setX(self.following.body:getX())
-    self.body:setY(self.following.body:getY())
+    self.body:setX(math.floor(self.following.body:getX()))
+    self.body:setY(math.floor(self.following.body:getY()))
     self.body:setLinearVelocity(0, 0)
 end
 

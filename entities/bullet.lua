@@ -20,9 +20,11 @@ function bullet:update(dt)
 end
 
 function bullet:draw(dt)
+    love.graphics.push()
     love.graphics.setColor(255, 255, 0, 255)
     -- love.graphics.polygon('line', self.body:getWorldPoints(self.shape:getPoints()))
     love.graphics.circle('line', self.body:getX(), self.body:getY(), self.shape:getRadius())
+    love.graphics.pop()
 end
 
 return bullet;

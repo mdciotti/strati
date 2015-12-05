@@ -2,38 +2,40 @@ require('level')
 require('entities')
 
 debugMode = false
+screenBuffer = nil
+glowShader = nil
+glowCanvas = nil
 
 function love.conf(t)
     t.title = "Strati"
     t.version = "0.9.2"
     t.console = true
+
+    if not love.graphics.isSupported('canvas') then
+        print('Your graphics card is incompatible with this game.')
+        print('(off-screen rendering support)')
+        love.event.push('quit')
+    end
+
+    if not love.graphics.isSupported('npot') then
+        print('Your graphics card is incompatible with this game.')
+        print('(non-power of two texture support)')
+        love.event.push('quit')
+    end
 end
 
 function love.load()
-    local pixelcode = [[
-        vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-        {
-            vec4 texcolor = Texel(texture, texture_coords);
-            return texcolor * color;
-            // return vec4(1.0, 1.0, 1.0. 1.0);
-        }
-    ]]
-
-    local vertexcode = [[
-        vec4 position( mat4 transform_projection, vec4 vertex_position )
-        {
-            return transform_projection * vertex_position;
-        }
-    ]]
-
-    local shader = love.graphics.newShader(pixelcode, vertexcode)
-    -- This can be called within love.draw() to swap shaders on the fly
-    love.graphics.setShader(shader)
-    love.graphics.setBlendMode('additive')
-
-    entities.startup()
     local width = love.graphics.getWidth()
     local height = love.graphics.getHeight()
+    screenBuffer = love.graphics.newCanvas(width, height, 'rgba8', 0)
+    glowCanvas = love.graphics.newCanvas(width, height, 'rgba8', 0)
+    glowShader = love.graphics.newShader('effects/overglow.glsl')
+    glowShader:send('width', love.graphics.getWidth())
+    glowShader:send('height', love.graphics.getHeight())
+    abberationShader = love.graphics.newShader('effects/abberation.glsl')
+    abberationShader:send('abberation', 2 / love.graphics.getWidth())
+
+    entities.startup()
 
     stuff = {}
 
@@ -77,10 +79,11 @@ function love.update(dt)
 end
 
 function love.draw()
-    if debugMode then
-        local fps = love.timer.getFPS()
-        love.graphics.print(fps, 2, 2)
-    end
+    -- Draw to the screen buffer
+    love.graphics.setCanvas(screenBuffer)
+    love.graphics.setBlendMode('alpha')
+    screenBuffer:clear()
+    -- love.graphics.setBackgroundColor(0, 0, 0)
 
     level.camera:set()
 
@@ -97,4 +100,31 @@ function love.draw()
     entities.draw(dt)
 
     level.camera:unset()
+
+    -- Draw overglow
+    love.graphics.setBlendMode('premultiplied')
+    love.graphics.setCanvas(glowCanvas)
+    glowCanvas:clear()
+    love.graphics.setShader(glowShader)
+    glowShader:send('dir', {1, 0})
+    love.graphics.draw(screenBuffer)
+    love.graphics.setCanvas()
+    glowShader:send('dir', {0, 1})
+    love.graphics.draw(glowCanvas)
+
+    -- Now draw to the window
+    love.graphics.setShader(abberationShader)
+    love.graphics.setCanvas()
+
+    -- Draw normal
+    love.graphics.setBlendMode('screen')
+    love.graphics.draw(screenBuffer)
+
+    love.graphics.setShader()
+
+    if debugMode then
+        love.graphics.setBlendMode('alpha')
+        local fps = love.timer.getFPS()
+        love.graphics.print('FPS: ' .. fps, 2, 2)
+    end
 end
