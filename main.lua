@@ -1,7 +1,7 @@
 require('level')
 require('entities')
 
-debug = false
+debugMode = false
 
 function love.conf(t)
     t.title = "Strati"
@@ -77,7 +77,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    if debug then
+    if debugMode then
         local fps = love.timer.getFPS()
         love.graphics.print(fps, 2, 2)
     end

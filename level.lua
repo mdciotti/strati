@@ -11,8 +11,6 @@ level.world:setCallbacks(collisions.beginContact, collisions.endContact, collisi
 level.world:setContactFilter(collisions.contactFilter)
 level.camera = require('camera')
 level.player = nil
-level.respawningPlayer = false
-level.respawnPlayerAt = nil
 level.spawners = {}
 local spawn_id = 0
 
@@ -59,26 +57,15 @@ function level:load()
     }
 
     -- Create player
-    self:respawnPlayer(0)
-end
-
--- Respawns a player after `delay` seconds
-function level:respawnPlayer(delay)
-    self.respawningPlayer = true
-    self.respawnPlayerAt = love.timer.getTime() + delay
+    self.player = entities.create('player', self.width / 2, self.height / 2)
+    self.camera:follow(self.player)
+    -- self.player:respawn()
 end
 
 function level:update(dt)
     self.world:update(dt)
     self.camera:update(dt)
     local now = love.timer.getTime()
-
-    -- Respawn player if needed
-    if self.respawningPlayer and now >= self.respawnPlayerAt then
-        self.player = entities.create('player', self.width / 2, self.height / 2)
-        self.camera:follow(self.player)
-        self.respawningPlayer = false
-    end
 
     -- Spawn enemies
     for i, spawn in pairs(self.spawners) do

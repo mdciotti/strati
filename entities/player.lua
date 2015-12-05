@@ -18,6 +18,9 @@ player.weapon.damagePerBullet = 1
 -- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
 
 function player:load(x, y)
+    self.spawnPoint = {x, y}
+    self.respawnAt = 0
+    self.alive = false
     self.birth = love.timer.getTime()
     self.body = love.physics.newBody(level.world, x, y, 'dynamic')
     self.shape = love.physics.newCircleShape(self.hitRadius)
@@ -29,9 +32,21 @@ function player:load(x, y)
 end
 
 function player:die()
-    level.camera:unfollow()
-    entities.destroy(self.id)
-    level:respawnPlayer(3)
+    if self.alive then
+        self.alive = false
+        -- Respawn after three seconds
+        self.respawnAt = love.timer.getTime() + 3
+        -- self.spawnPoint = {self.body:getX(), self.body:getY()}
+    end
+end
+
+function player:respawn()
+    self.birth = love.timer.getTime()
+    self.body:setX(self.spawnPoint[1])
+    self.body:setY(self.spawnPoint[2])
+    self.body:setLinearVelocity(0, 0)
+    self.body:setAngle(0)
+    self.body:setAngularVelocity(0)
 end
 
 function player:move(dist, angle)
@@ -95,6 +110,19 @@ function player:registerController(joystick)
 end
 
 function player:update(dt)
+    local now = love.timer.getTime()
+
+    -- Respawn player if needed
+    if not self.alive and now >= self.respawnAt then
+        self:respawn()
+        self.alive = true
+    end
+
+    -- Don't let player move or fire when dead
+    if not player.alive then
+        return
+    end
+
     if self.controller ~= nil then
         -- getGamepadAxis returns a value between -1 and 1 (0 at rest)
         -- Movement
@@ -154,11 +182,16 @@ end
 
 function player:draw(dt)
     love.graphics.push()
-    love.graphics.setColor(self.color)
+
+    if self.alive then
+        love.graphics.setColor(self.color)
+    else
+        love.graphics.setColor(240, 15, 15)
+    end
     love.graphics.polygon('line', self.body:getWorldPoints(unpack(self.vertices)))
 
     -- Debug firing lines
-    if debug then
+    if debugMode then
         local theta = self.body:getAngle()
         local n = player.weapon.bulletsPerShot - 1
         local x = 1.25 * player.hitRadius * math.cos(theta) + self.body:getX()
