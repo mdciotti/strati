@@ -143,8 +143,10 @@ function player:update(dt)
 
     else
         -- Use keyboard + mouse
-        local dx = (love.mouse.getX() + level.camera.body:getX()) - self.body:getX()
-        local dy = (love.mouse.getY() + level.camera.body:getY()) - self.body:getY()
+        local mx = level.camera.body:getX() + (-love.graphics.getWidth() / 2 + love.mouse.getX()) / level.camera.scaleX
+        local my = level.camera.body:getY() + (-love.graphics.getHeight() / 2 + love.mouse.getY()) / level.camera.scaleY
+        local dx = mx - self.body:getX()
+        local dy = my - self.body:getY()
         self.body:setAngle(math.atan2(dy, dx))
 
         local dist = 0

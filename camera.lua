@@ -1,6 +1,6 @@
 local camera2 = {}
-camera2.scaleX = 1
-camera2.scaleY = 1
+camera2.scaleX = 1.5
+camera2.scaleY = 1.5
 camera2.rotation = 0
 camera2.following = nil
 local centerX = love.graphics.getWidth() / 2
@@ -18,7 +18,7 @@ function camera2:set()
     love.graphics.push()
     love.graphics.rotate(-self.rotation)
     love.graphics.scale(1 / self.scaleX, 1 / self.scaleY)
-    love.graphics.translate(-self.body:getX(), -self.body:getY())
+    love.graphics.translate(-self.body:getX() + centerX * self.scaleX, -self.body:getY() + centerY * self.scaleY)
 end
 
 function camera2:unset()
@@ -39,8 +39,8 @@ end
 function camera2:update(dt)
     if self.following then
         -- Apply spring force
-        local dx = self.following.body:getX() - self.body:getX() - centerX
-        local dy = self.following.body:getY() - self.body:getY() - centerY
+        local dx = self.following.body:getX() - self.body:getX()
+        local dy = self.following.body:getY() - self.body:getY()
         -- Fx = -k * dx
         self.body:applyForce(self.springConstant * dx, self.springConstant * dy)
     end
