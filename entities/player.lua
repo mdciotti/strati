@@ -1,7 +1,7 @@
 local player = entities.derive('base')
 
 player.hitRadius = 16
-player.speed = 300
+player.speed = 600
 player.color = { 240, 240, 240 }
 player.vertices = {16,8, 8,16, -7,16, -16,7, -16,-7, -7,-16, 8,-16, 16,-8, -3,-8, -7,-4, -7,4, -3,8}
 player.controller = nil
@@ -28,7 +28,7 @@ function player:load(x, y)
     self.fixture:setRestitution(0.1)
     self.fixture:setUserData('player')
     self.body:setFixedRotation(false)
-    self.body:setLinearDamping(2.5)
+    self.body:setLinearDamping(5)
 end
 
 function player:die()
