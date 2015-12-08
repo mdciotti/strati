@@ -12,8 +12,8 @@ player.lastFired = 0
 
 player.weapon = {}
 player.weapon.spread = 10 -- degrees
-player.weapon.shotsPerSecond = 10 -- shots per second
-player.weapon.bulletsPerShot = 1
+player.weapon.shotsPerSecond = 3 -- shots per second
+player.weapon.bulletsPerShot = 3
 player.weapon.damagePerBullet = 1
 -- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
 
@@ -82,6 +82,8 @@ function player:fire()
         bullet:setOwner(self)
         local fx = bullet.speed * math.cos(angle) / 100
         local fy = bullet.speed * math.sin(angle) / 100
+        bullet.body:setAngle(angle - math.pi / 2)
+        bullet.body:setAngularVelocity(0)
         bullet.body:setLinearVelocity(vx, vy)
         bullet.body:applyLinearImpulse(fx, fy)
         self.body:applyLinearImpulse(-fx, -fy)
@@ -94,6 +96,8 @@ function player:fire()
             bullet:setOwner(self)
             local fx = bullet.speed * math.cos(angle) / 100
             local fy = bullet.speed * math.sin(angle) / 100
+            bullet.body:setAngle(angle - math.pi / 2)
+            bullet.body:setAngularVelocity(0)
             bullet.body:setLinearVelocity(vx, vy)
             bullet.body:applyLinearImpulse(fx, fy)
             self.body:applyLinearImpulse(-fx, -fy)
