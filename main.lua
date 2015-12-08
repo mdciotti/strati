@@ -4,7 +4,10 @@ require('entities')
 debugMode = false
 screenBuffer = nil
 glowShader = nil
-glowCanvas = nil
+glowCanvas1 = nil
+glowCanvas2 = nil
+glowMap = nil
+glowMapShader = nil
 
 function love.conf(t)
     t.title = "Strati"
@@ -28,10 +31,24 @@ function love.load()
     local width = love.graphics.getWidth()
     local height = love.graphics.getHeight()
     screenBuffer = love.graphics.newCanvas(width, height, 'rgba8', 0)
-    glowCanvas = love.graphics.newCanvas(width, height, 'rgba8', 0)
+
+    local glowMapWidth = 512
+    local glowMapHeight = 512
+    glowMap = love.graphics.newCanvas(glowMapWidth, glowMapHeight, 'rgba8', 0)
+    glowMapShader = love.graphics.newShader('effects/glowmap.glsl')
+
+    glowCanvas1 = love.graphics.newCanvas(glowMapWidth, glowMapHeight, 'rgba8', 0)
+    glowCanvas2 = love.graphics.newCanvas(glowMapWidth, glowMapHeight, 'rgba8', 0)
     glowShader = love.graphics.newShader('effects/overglow.glsl')
-    glowShader:send('width', love.graphics.getWidth())
-    glowShader:send('height', love.graphics.getHeight())
+    -- The number of neighboring samples to take for the blur
+    glowShader:sendInt('blurRadius', 10)
+    -- The distance between samples taken for the blur
+    glowShader:send('blurScale', 1)
+    -- A scaling factor to control the strength of the blur (between 0 and 1)
+    glowShader:send('blurStrength', 0.3)
+    -- The size of a single pixel in the glowmap
+    glowShader:send('texelSize', {1.0 / glowMap:getWidth(), 1.0 / glowMap:getHeight()})
+
     abberationShader = love.graphics.newShader('effects/abberation.glsl')
     abberationShader:send('abberation', 2 / love.graphics.getWidth())
 
@@ -81,7 +98,7 @@ end
 function love.draw()
     -- Draw to the screen buffer
     love.graphics.setCanvas(screenBuffer)
-    love.graphics.setBlendMode('alpha')
+    love.graphics.setBlendMode('additive')
     screenBuffer:clear()
     -- love.graphics.setBackgroundColor(0, 0, 0)
 
@@ -91,7 +108,7 @@ function love.draw()
     level:draw(dt)
 
     -- stuff
-    love.graphics.setLineWidth(1)
+    love.graphics.setLineWidth(3)
     for _, v in pairs(stuff) do
         love.graphics.setColor(v.color)
         love.graphics.rectangle('line', v.x, v.y, v.width, v.height)
@@ -101,24 +118,44 @@ function love.draw()
 
     level.camera:unset()
 
-    -- Draw overglow
-    love.graphics.setBlendMode('premultiplied')
-    love.graphics.setCanvas(glowCanvas)
-    glowCanvas:clear()
-    love.graphics.setShader(glowShader)
-    glowShader:send('dir', {1, 0})
-    love.graphics.draw(screenBuffer)
-    love.graphics.setCanvas()
-    glowShader:send('dir', {0, 1})
-    love.graphics.draw(glowCanvas)
+    -- Generate glowmap
+    love.graphics.setCanvas(glowMap)
+    love.graphics.setShader(glowMapShader)
+    glowMap:clear()
+    local sx, sy = glowMap:getWidth() / screenBuffer:getWidth(), glowMap:getHeight() / screenBuffer:getHeight()
+    local ox, oy = glowMap:getWidth() / 2, glowMap:getHeight() / 2
+    love.graphics.draw(screenBuffer, 0, 0, 0, sx, sy, 0, 0, 0, 0)
 
-    -- Now draw to the window
+    -- Generate overglow
+    love.graphics.setShader(glowShader)
+    love.graphics.setBlendMode('screen')
+
+    -- Horizontal blur pass
+    love.graphics.setCanvas(glowCanvas1)
+    glowCanvas1:clear()
+    glowShader:send('dir', {1, 0})
+    love.graphics.draw(glowMap)
+
+    -- Vertical blur pass
+    love.graphics.setCanvas(glowCanvas2)
+    glowCanvas2:clear()
+    -- love.graphics.setBlendMode('replace')
+    -- love.graphics.setBackgroundColor(255,0,0,255)
+    -- love.graphics.setBlendMode('screen')
+    glowShader:send('dir', {0, 1})
+    love.graphics.draw(glowCanvas1)
+
+    -- Now set drawing to the window
     love.graphics.setShader(abberationShader)
     love.graphics.setCanvas()
 
     -- Draw normal
     love.graphics.setBlendMode('screen')
     love.graphics.draw(screenBuffer)
+
+    -- Draw glow
+    love.graphics.setBlendMode('screen')
+    love.graphics.draw(glowCanvas2, 0, 0, 0, 1 / sx, 1 / sy, 0, 0, 0)
 
     love.graphics.setShader()
 

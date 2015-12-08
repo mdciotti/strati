@@ -1,32 +1,36 @@
-uniform float width;
-uniform float height;
 uniform vec2 dir;
+uniform float blurScale;
+uniform float blurStrength;
+uniform int blurRadius;
+uniform vec2 texelSize;
 
-// Weights and offsets for the Gaussian blur
-uniform float px[10] = float[](0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0);
-uniform float weight[10] = float[](0.133,0.126,0.106,0.081,0.055,0.033,0.018,0.009,0.004,0.001);
-
-float luma(vec3 color)
+float Gaussian(float x, float variance)
 {
-    return 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+    return (1.0 / sqrt(2.0 * 3.141592 * variance)) * exp(-((x * x) / (2.0 * variance)));
 }
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
-    // extract the bright parts
-    // vec4 val = texture(RenderTex, texture_coords.xy);
-    // return val * clamp(luma(val.rgb), 0.0, 1.0);
+    // Calculated values
+    float variance = float(blurRadius) * 0.333;
+    variance *= variance;
+    float strength = 1.0 - blurStrength;
 
-    vec4 sum = texture2D(texture, texture_coords.xy) * weight[0];
-    vec2 delta = dir * vec2(2.0 / width, 2.0 / height);
+    // Iteration values
+    float weight = Gaussian(0, variance);
+    vec4 sum = texture2D(texture, texture_coords.xy) * weight;
     vec2 offset;
+    float x;
 
-    for (int i = 1; i < 10; i++)
+    for (int i = 1; i < blurRadius; i++)
     {
-        offset = px[i] * delta;
-        sum += texture2D(texture, texture_coords.xy + offset) * weight[i];
-        sum += texture2D(texture, texture_coords.xy - offset) * weight[i];
+        x = float(i);
+        offset = x * dir * texelSize * blurScale;
+        weight = Gaussian(x * strength, variance);
+        sum += texture2D(texture, texture_coords.xy + offset) * weight;
+        sum += texture2D(texture, texture_coords.xy - offset) * weight;
     }
 
-    return sum;
+    sum.a = 1.0;
+    return clamp(sum, 0.0, 1.0);
 }

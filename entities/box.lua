@@ -48,7 +48,7 @@ end
 
 function box:draw(dt)
     love.graphics.push()
-    love.graphics.setColor(255, 0, 255, 255)
+    love.graphics.setColor(255, 0, 255, 196)
     love.graphics.polygon('line', self.body:getWorldPoints(unpack(self.vertices)))
     love.graphics.pop()
 end
