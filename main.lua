@@ -84,11 +84,13 @@ function love.joystickremoved(joystick)
     -- TODO: pause game
 end
 
-function love.update(dt)
-    if love.keyboard.isDown('escape') then
+function love.keypressed(key)
+    if key == 'escape' then
         love.event.push('quit')
     end
+end
 
+function love.update(dt)
     -- if not game.paused then
     level:update(dt)
     entities.update(dt)
