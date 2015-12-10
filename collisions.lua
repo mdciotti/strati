@@ -39,14 +39,18 @@ function collisions.postSolve(a, b, coll, normalimpulse1, tangentimpulse1, norma
         return
     elseif A == nil and B ~= nil then
         -- Remove bullet if one object is a wall and the other is a bullet
-        if bodyA:getType() == 'static' and (B.type == 'bullet' or B.type == 'missile') then
+        if bodyA:getType() == 'static' and B.type == 'bullet' then
             entities.destroy(B.id)
+        elseif bodyA:getType() == 'static' and B.type == 'missile' then
+            B:explode()
         end
         return
     elseif A ~= nil and B == nil then
         -- Remove bullet if one object is a bullet and the other is a wall
-        if (A.type == 'bullet' or A.type == 'missile') and bodyB:getType() == 'static' then
+        if A.type == 'bullet' and bodyB:getType() == 'static' then
             entities.destroy(A.id)
+        elseif A.type == 'missile' and bodyB:getType() == 'static' then
+            A:explode()
         end
         return
     end

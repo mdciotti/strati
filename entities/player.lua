@@ -14,7 +14,7 @@ player.weapon = {}
 player.weapon.spread = 10 -- degrees
 player.weapon.shotsPerSecond = 1
 player.weapon.bulletsPerShot = 1
-player.weapon.damagePerBullet = 1
+player.weapon.damagePerBullet = 5
 -- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
 
 function player:load(x, y)
