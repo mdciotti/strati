@@ -34,8 +34,8 @@ function missile:update(dt)
             angle = i * 2 * math.pi / n
             local bullet = entities.create('bullet', x, y)
             bullet:setOwner(self.owner)
-            local fx = bullet.speed * math.cos(angle) / 100
-            local fy = bullet.speed * math.sin(angle) / 100
+            local fx = 2 * bullet.speed * math.cos(angle) / 100
+            local fy = 2 * bullet.speed * math.sin(angle) / 100
             bullet.body:setAngle(angle - math.pi / 2)
             bullet.body:setAngularVelocity(0)
             bullet.body:setLinearVelocity(vx, vy)
