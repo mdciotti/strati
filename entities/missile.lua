@@ -5,9 +5,10 @@ missile.vertices = {0,16, 6,10, 6,-16, -6,-16, -6,10}
 function missile:load(x, y)
     self.body = love.physics.newBody(level.world, x, y, 'dynamic')
     self.shape = love.physics.newCircleShape(8)
-    self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
+    self.fixture = love.physics.newFixture(self.body, self.shape, 0.5)
     self.body:setBullet(true)
-    self.thrust = 100
+    self.thrust = 50
+    self.speed = 4000
     self.birth = love.timer.getTime()
     self.owner = nil
     self._exploding = false

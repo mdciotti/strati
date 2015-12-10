@@ -83,10 +83,10 @@ function player:fire()
         bullet.body:setAngle(angle - math.pi / 2)
         bullet.body:setAngularVelocity(0)
         bullet.body:setLinearVelocity(vx, vy)
-        -- local fx = bullet.speed * math.cos(angle) / 100
-        -- local fy = bullet.speed * math.sin(angle) / 100
-        -- bullet.body:applyLinearImpulse(fx, fy)
-        -- self.body:applyLinearImpulse(-fx, -fy)
+        local fx = bullet.speed * math.cos(angle) / 100
+        local fy = bullet.speed * math.sin(angle) / 100
+        bullet.body:applyLinearImpulse(fx, fy)
+        self.body:applyLinearImpulse(-fx, -fy)
     else
         -- Fire n+1 bullets
         local n = player.weapon.bulletsPerShot - 1
