@@ -8,6 +8,7 @@ function entities.startup()
     register['player'] = love.filesystem.load(entities.objectpath .. 'player.lua')
     register['box'] = love.filesystem.load(entities.objectpath .. 'box.lua')
     register['bullet'] = love.filesystem.load(entities.objectpath .. 'bullet.lua')
+    register['missile'] = love.filesystem.load(entities.objectpath .. 'missile.lua')
 end
 
 function entities.derive(name)
@@ -32,9 +33,9 @@ function entities.create(name, x, y)
     if register[name] then
         id = id + 1
         local ent = register[name]()
+        ent.type = name
         ent:load(x, y)
         ent.id = id
-        ent.type = name
         if ent.fixture then
             ent.fixture:setUserData(id)
         end

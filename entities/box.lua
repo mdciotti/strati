@@ -14,6 +14,11 @@ function box:load(x, y)
     self.health = 5
 end
 
+-- Destroys the entity on the next update
+function box:kill()
+    self.health = 0
+end
+
 function box:hit(damage)
     self.health = self.health - damage
 end
