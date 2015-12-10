@@ -9,10 +9,11 @@ player.type = 'player'
 
 player.canFire = true
 player.lastFired = 0
+player.lastFiredMissile = 0
 
 player.weapon = {}
 player.weapon.spread = 10 -- degrees
-player.weapon.shotsPerSecond = 1
+player.weapon.shotsPerSecond = 10
 player.weapon.bulletsPerShot = 1
 player.weapon.damagePerBullet = 5
 -- player.weapon.damagePerSecond = player.weapon.damagePerBullet * player.weapon.bulletsPerShot * player.weapon.shotsPerSecond
@@ -45,6 +46,7 @@ function player:load(x, y)
     self.trail:setSpread(math.pi / 9)
     self.trail:setOffset(-1.25 * self.hitRadius, 5)
     self.trail:setSpeed(0.5 * self.speed)
+    self.trail:setSizes(1, 1, 0)
     self.trail:setColors(255, 255, 255, 128, 255, 255, 255, 0)
 end
 
@@ -80,6 +82,32 @@ function player:move(dist, angle)
     end
 end
 
+function player:fireMissile()
+    local dt = love.timer.getTime() - player.lastFiredMissile
+    if dt < 1 or not player.canFire then
+        return
+    end
+
+    -- Set missile start position slightly in front of player
+    local theta = self.body:getAngle()
+    local x = 1.25 * player.hitRadius * math.cos(theta) + self.body:getX()
+    local y = 1.25 * player.hitRadius * math.sin(theta) + self.body:getY()
+    local spread = math.rad(player.weapon.spread)
+    local vx, vy = self.body:getLinearVelocity()
+
+    local missile = entities.create('missile', x, y)
+    missile:setOwner(self)
+    missile.body:setAngle(theta - math.pi / 2)
+    missile.body:setAngularVelocity(0)
+    missile.body:setLinearVelocity(vx, vy)
+    local fx = missile.speed * math.cos(theta) / 100
+    local fy = missile.speed * math.sin(theta) / 100
+    missile.body:applyLinearImpulse(fx, fy)
+    self.body:applyLinearImpulse(-fx, -fy)
+
+    self.lastFiredMissile = love.timer.getTime()
+end
+
 function player:fire()
     local dt = love.timer.getTime() - player.lastFired
     if dt * player.weapon.shotsPerSecond < 1 or not player.canFire then
@@ -97,7 +125,7 @@ function player:fire()
     if player.weapon.bulletsPerShot == 1 then
         -- Add variance to the direction, within (-spread/2, +spread/2) degrees
         local angle = theta - spread / 2 + spread * math.random()
-        local bullet = entities.create('missile', x, y)
+        local bullet = entities.create('bullet', x, y)
         bullet:setOwner(self)
         bullet.body:setAngle(angle - math.pi / 2)
         bullet.body:setAngularVelocity(0)
@@ -147,6 +175,8 @@ function player:update(dt)
     if not self.alive and now >= self.respawnAt then
         self:respawn()
         self.alive = true
+        player.lastFired = 0
+        player.lastFiredMissile = 0
     end
 
     -- Don't let player move or fire when dead
@@ -209,6 +239,9 @@ function player:update(dt)
 
         if love.mouse.isDown('l') then
             self:fire()
+        end
+        if love.mouse.isDown('r') then
+            self:fireMissile()
         end
     end
 end
