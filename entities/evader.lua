@@ -1,6 +1,6 @@
 local box = entities.derive('base')
 
-box.vertices = {0,0, 0,16, 16,16, 0,0, 16,0, 16,-16, 0,0, 0,-16, -16,-16, 0,0, -16,0, -16,16}
+box.vertices = {0,16, 16,16, 16,-16, -16,-16, -16,16, 0,16, 16,0, 0,-16, -16,0}
 
 function box:load(x, y)
     self.body = love.physics.newBody(level.world, x, y, 'dynamic')
@@ -8,11 +8,17 @@ function box:load(x, y)
     self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
     self.fixture:setRestitution(0.1)
     self.body:setFixedRotation(false)
-    self.body:setLinearDamping(3.5)
-    self.speed = 100
+    self.body:setLinearDamping(2.5)
+    self.speed = 300
     self.birth = love.timer.getTime()
     self.health = 5
+    self.pid_x = PID.new(0.5, 0, 0.1)
+    self.pid_y = PID.new(0.5, 0, 0.1)
     self.type = 'enemy'
+end
+
+function box:hit(damage)
+    self.health = self.health - damage
 end
 
 -- Destroys the entity on the next update
@@ -20,17 +26,8 @@ function box:kill()
     self.health = 0
 end
 
-function box:hit(damage)
-    self.health = self.health - damage
-end
-
 function box:setTarget(player)
     self.target = player
-end
-
-function box:move(dx, dy)
-    local d = math.sqrt(dx * dx + dy * dy)
-    self.body:applyForce(self.speed * dx / d, self.speed * dy / d)
 end
 
 function box:update(dt)
@@ -40,9 +37,9 @@ function box:update(dt)
 
     -- Follow player
     if self.target ~= nil then
-        local dx = self.target.body:getX() - self.body:getX()
-        local dy = self.target.body:getY() - self.body:getY()
-        self:move(dx, dy)
+        local fx = self.pid_x:update(self.target.body:getX(), self.body:getX(), dt)
+        local fy = self.pid_y:update(self.target.body:getY(), self.body:getY(), dt)
+        self.body:applyForce(fx, fy)
     else
         -- Wander?
     end
@@ -54,7 +51,8 @@ end
 
 function box:draw(dt)
     love.graphics.push()
-    love.graphics.setColor(255, 0, 255, 196)
+    love.graphics.setLineWidth(2)
+    love.graphics.setColor(0, 255, 0, 255)
     love.graphics.polygon('line', self.body:getWorldPoints(unpack(self.vertices)))
     love.graphics.pop()
 end

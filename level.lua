@@ -56,6 +56,17 @@ function level:load()
         lastSpawned = self.initialTime -- the time at which the last entity was spawned
     }
 
+    spawn_id = spawn_id + 1
+    self.spawners[spawn_id] = {
+        type = 'evader',
+        x = level.width - 50,
+        y = 50,
+        interval = 1,
+        count = 0,
+        maxCount = 10,
+        lastSpawned = self.initialTime + 5
+    }
+
     -- Create player
     self.player = entities.create('player', self.width / 2, self.height / 2)
     self.camera:follow(self.player)

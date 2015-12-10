@@ -1,3 +1,5 @@
+require('pid-controller')
+
 entities = {}
 entities.objects = {}
 entities.objectpath = 'entities/'
@@ -9,6 +11,7 @@ function entities.startup()
     register['box'] = love.filesystem.load(entities.objectpath .. 'box.lua')
     register['bullet'] = love.filesystem.load(entities.objectpath .. 'bullet.lua')
     register['missile'] = love.filesystem.load(entities.objectpath .. 'missile.lua')
+    register['evader'] = love.filesystem.load(entities.objectpath .. 'evader.lua')
 end
 
 function entities.derive(name)
