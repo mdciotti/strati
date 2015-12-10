@@ -87,6 +87,10 @@ end
 function love.keypressed(key)
     if key == 'escape' then
         love.event.push('quit')
+    elseif key == '=' then
+        level.camera:zoom(1.25)
+    elseif key == '-' then
+        level.camera:zoom(0.8)
     end
 end
 
