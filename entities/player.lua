@@ -29,6 +29,23 @@ function player:load(x, y)
     self.fixture:setUserData('player')
     self.body:setFixedRotation(false)
     self.body:setLinearDamping(5)
+
+    -- Set up particle trail
+    local trailParticle = love.graphics.newCanvas(10, 10)
+    trailParticle:renderTo(function ()
+        love.graphics.setLineWidth(3)
+        love.graphics.setColor(255, 255, 255, 255)
+        -- love.graphics.circle('fill', 5, 5, 5)
+        love.graphics.line(0, 5, 10, 5)
+    end)
+    self.trail = love.graphics.newParticleSystem(trailParticle, 100)
+    self.trail:setEmissionRate(50)
+    self.trail:setParticleLifetime(1)
+    self.trail:setRelativeRotation(true)
+    self.trail:setSpread(math.pi / 9)
+    self.trail:setOffset(-1.25 * self.hitRadius, 5)
+    self.trail:setSpeed(0.5 * self.speed)
+    self.trail:setColors(255, 255, 255, 128, 255, 255, 255, 0)
 end
 
 function player:die()
@@ -37,6 +54,7 @@ function player:die()
         -- Respawn after three seconds
         self.respawnAt = love.timer.getTime() + 3
         -- self.spawnPoint = {self.body:getX(), self.body:getY()}
+        self.trail:pause()
     end
 end
 
@@ -47,6 +65,7 @@ function player:respawn()
     self.body:setLinearVelocity(0, 0)
     self.body:setAngle(0)
     self.body:setAngularVelocity(0)
+    self.trail:start()
 end
 
 function player:move(dist, angle)
@@ -115,6 +134,14 @@ end
 
 function player:update(dt)
     local now = love.timer.getTime()
+
+    -- Update trail particle system
+    self.trail:setPosition(self.body:getX(), self.body:getY())
+    local vx, vy = self.body:getLinearVelocity()
+    local vel_angle = math.atan2(vy, vx)
+    -- self.trail:setRotation(vel_angle)
+    self.trail:setDirection(self.body:getAngle() + math.pi)
+    self.trail:update(dt)
 
     -- Respawn player if needed
     if not self.alive and now >= self.respawnAt then
@@ -194,6 +221,8 @@ function player:draw(dt)
     else
         love.graphics.setColor(240, 15, 15)
     end
+    -- Draw particle trail
+    love.graphics.draw(self.trail, 0, 0)
     love.graphics.polygon('line', self.body:getWorldPoints(unpack(self.vertices)))
 
     -- Debug firing lines
