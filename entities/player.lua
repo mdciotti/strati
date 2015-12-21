@@ -189,17 +189,31 @@ function player:update(dt)
         -- Movement
         local leftX = self.controller:getGamepadAxis('leftx')
         local leftY = self.controller:getGamepadAxis('lefty')
-        self:move(self.speed, math.atan2(leftY, leftX) + math.pi / 2)
+        local leftMagnitude = math.sqrt(leftX * leftX + leftY * leftY)
+
+        if leftMagnitude > 0.1 then -- Account for deadzone
+            self:move(leftMagnitude * self.speed, math.atan2(leftY, leftX) + math.pi / 2)
+        end
 
         -- Direction
         local rightX = self.controller:getGamepadAxis('rightx')
         local rightY = self.controller:getGamepadAxis('righty')
-        self.body:setAngle(math.atan2(rightY, rightX))
+        local rightMagnitude = math.sqrt(rightX * rightX + rightY * rightY)
+
+        if rightMagnitude > 0.25 then
+            self.body:setAngle(math.atan2(rightY, rightX))
+        end
+        self.body:setAngularVelocity(0)
+
+        local rightTrigger = self.controller:getGamepadAxis('triggerright')
+        local leftTrigger = self.controller:getGamepadAxis('triggerleft')
 
         -- Fire weapon
-        local trigger = self.controller:getGamepadAxis('triggerright')
-        if trigger > 0.5 then
+        if rightTrigger > 0.5 then
             self:fire()
+        end
+        if leftTrigger > 0.5 then
+            self:fireMissile()
         end
 
     else
@@ -209,6 +223,7 @@ function player:update(dt)
         local dx = mx - self.body:getX()
         local dy = my - self.body:getY()
         self.body:setAngle(math.atan2(dy, dx))
+        self.body:setAngularVelocity(0)
 
         local dist = 0
         local dirX = 0

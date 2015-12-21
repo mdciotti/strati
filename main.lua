@@ -74,7 +74,7 @@ function love.joystickadded(joystick)
         -- TODO: confirm joystick has required layout
         local name_id = joystick:getName() .. ' ' .. joystick:getID()
         print('A controller was connected (' .. name_id .. ')')
-        player:registerController(joystick)
+        level.player:registerController(joystick)
     end
 end
 
