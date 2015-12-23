@@ -193,7 +193,7 @@ function player:update(dt)
         -- Movement
         local leftX = self.controller:getGamepadAxis('leftx')
         local leftY = self.controller:getGamepadAxis('lefty')
-        local leftMagnitude = math.sqrt(leftX * leftX + leftY * leftY)
+        local leftMagnitude = math.min(math.sqrt(leftX * leftX + leftY * leftY), 1)
 
         if leftMagnitude > 0.1 then -- Account for deadzone
             self:move(leftMagnitude * self.speed, math.atan2(leftY, leftX) + math.pi / 2)

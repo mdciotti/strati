@@ -7,7 +7,7 @@ function bullet:load(x, y)
     self.shape = love.physics.newCircleShape(4)
     self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
     self.body:setBullet(true)
-    self.speed = 1000
+    self.speed = 2000
     self.birth = love.timer.getTime()
     self.owner = nil
 end

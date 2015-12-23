@@ -9,24 +9,6 @@ glowCanvas2 = nil
 glowMap = nil
 glowMapShader = nil
 
-function love.conf(t)
-    t.title = "Strati"
-    t.version = "0.9.2"
-    t.console = true
-
-    if not love.graphics.isSupported('canvas') then
-        print('Your graphics card is incompatible with this game.')
-        print('(off-screen rendering support)')
-        love.event.push('quit')
-    end
-
-    if not love.graphics.isSupported('npot') then
-        print('Your graphics card is incompatible with this game.')
-        print('(non-power of two texture support)')
-        love.event.push('quit')
-    end
-end
-
 function love.load()
     local width = love.graphics.getWidth()
     local height = love.graphics.getHeight()
@@ -115,7 +97,6 @@ function love.draw()
     love.graphics.setShader(glowMapShader)
     glowMap:clear()
     local sx, sy = glowMap:getWidth() / screenBuffer:getWidth(), glowMap:getHeight() / screenBuffer:getHeight()
-    local ox, oy = glowMap:getWidth() / 2, glowMap:getHeight() / 2
     love.graphics.draw(screenBuffer, 0, 0, 0, sx, sy, 0, 0, 0, 0)
 
     -- Generate overglow
