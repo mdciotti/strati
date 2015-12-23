@@ -37,8 +37,8 @@ function entities.create(name, x, y)
         id = id + 1
         local ent = register[name]()
         ent.type = name
-        ent:load(x, y)
         ent.id = id
+        ent:load(x, y)
         if ent.fixture then
             ent.fixture:setUserData(id)
         end

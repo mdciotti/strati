@@ -50,21 +50,10 @@ function love.load()
     glowShader:send('texelSize', {1.0 / glowMap:getWidth(), 1.0 / glowMap:getHeight()})
 
     abberationShader = love.graphics.newShader('effects/abberation.glsl')
-    abberationShader:send('abberation', 2 / love.graphics.getWidth())
+    -- abberationShader:send('abberation', 2 / love.graphics.getWidth())
+    abberationShader:send('abberation', 0)
 
     entities.startup()
-
-    stuff = {}
-
-    for i = 1, 50 do
-        table.insert(stuff, {
-            x = math.random(0, width * 2 - 300),
-            y = math.random(0, height * 2 - 300),
-            width = math.random(100, 300),
-            height = math.random(100, 300),
-            color = { 32, 32, 32 }
-        })
-    end
 
     level:load()
 end
@@ -115,10 +104,7 @@ function love.draw()
 
     -- stuff
     love.graphics.setLineWidth(3)
-    for _, v in pairs(stuff) do
-        love.graphics.setColor(v.color)
-        love.graphics.rectangle('line', v.x, v.y, v.width, v.height)
-    end
+    love.graphics.setLineJoin('none')
 
     entities.draw(dt)
 

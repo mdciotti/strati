@@ -12,6 +12,9 @@ function missile:load(x, y)
     self.birth = love.timer.getTime()
     self.owner = nil
     self._exploding = false
+    self.gridWarpFactor = 1000
+    self.gridWarpRadius = 50
+    self.gridWarpRadiusSquared = self.gridWarpRadius * self.gridWarpRadius
 
     -- Set up particle trail
     local trailParticle = love.graphics.newCanvas(10, 10)
@@ -37,6 +40,7 @@ end
 
 function missile:explode()
     self._exploding = true
+    level.warpGrid:deregister(self)
 end
 
 function missile:update(dt)

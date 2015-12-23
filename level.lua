@@ -1,4 +1,5 @@
 require('collisions')
+require('fabric')
 
 level = {}
 level.x = 0
@@ -12,6 +13,7 @@ level.world:setContactFilter(collisions.contactFilter)
 level.camera = require('camera')
 level.player = nil
 level.spawners = {}
+level.warpGrid = nil
 local spawn_id = 0
 
 function level:load()
@@ -44,6 +46,9 @@ function level:load()
     self.wall_left.shape = love.physics.newRectangleShape(20, self.height)
     self.wall_left.fixture = love.physics.newFixture(self.wall_left.body, self.wall_left.shape)
 
+    -- Create background warp grid
+    self.warpGrid = Fabric.new(self.width, self.height, 40, 30)
+
     -- Create spawners
     spawn_id = spawn_id + 1
     self.spawners[spawn_id] = {
@@ -68,14 +73,16 @@ function level:load()
     }
 
     -- Create player
-    self.player = entities.create('player', self.width / 2, self.height / 2)
+    self.player = entities.create('player', self.width / 2+1, self.height / 2+1)
     self.camera:follow(self.player)
+    self.warpGrid:register(self.player)
     -- self.player:respawn()
 end
 
 function level:update(dt)
     self.world:update(dt)
     self.camera:update(dt)
+    self.warpGrid:update(dt)
     local now = love.timer.getTime()
 
     -- Spawn enemies
@@ -97,6 +104,7 @@ end
 
 function level:draw(dt)
     love.graphics.push()
+    self.warpGrid:draw()
     -- Set draw style
     love.graphics.setColor(self.color)
     love.graphics.setLineWidth(4)
