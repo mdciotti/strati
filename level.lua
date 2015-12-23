@@ -1,5 +1,6 @@
 require('collisions')
 require('fabric')
+require('starfield')
 
 level = {}
 level.x = 0
@@ -14,6 +15,7 @@ level.camera = require('camera')
 level.player = nil
 level.spawners = {}
 level.warpGrid = nil
+level.starfield = nil
 local spawn_id = 0
 
 function level:load()
@@ -48,6 +50,14 @@ function level:load()
 
     -- Create background warp grid
     self.warpGrid = Fabric.new(self.width, self.height, 40, 30)
+
+    -- Create background star field
+    -- self.starfield = StarField.new(1.5 * self.width, 1.5 * self.height, 50, 1000)
+    local x, y = -0.25 * self.width, -0.25 * self.height
+    local z = 50
+    local w, h = 1.5 * self.width, 1.5 * self.height
+    local depth = 50
+    self.starfield = StarField.new(x, y, z, w, h, depth, 1000)
 
     -- Create spawners
     spawn_id = spawn_id + 1
@@ -104,6 +114,7 @@ end
 
 function level:draw(dt)
     love.graphics.push()
+    self.starfield:draw()
     self.warpGrid:draw()
     -- Set draw style
     love.graphics.setColor(self.color)
