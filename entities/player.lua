@@ -35,19 +35,19 @@ function player:load(x, y)
     self.gridWarpRadiusSquared = self.gridWarpRadius * self.gridWarpRadius
 
     -- Set up particle trail
-    local trailParticle = love.graphics.newCanvas(10, 10)
+    local trailParticle = love.graphics.newCanvas(32, 32)
     trailParticle:renderTo(function ()
         love.graphics.setLineWidth(3)
         love.graphics.setColor(255, 255, 255, 255)
-        -- love.graphics.circle('fill', 5, 5, 5)
-        love.graphics.line(0, 5, 10, 5)
+        love.graphics.line(0, 16, 32, 16)
     end)
     self.trail = love.graphics.newParticleSystem(trailParticle, 100)
     self.trail:setEmissionRate(50)
     self.trail:setParticleLifetime(1)
     self.trail:setRelativeRotation(true)
-    self.trail:setSpread(math.pi / 9)
-    self.trail:setOffset(-1.25 * self.hitRadius, 5)
+    -- self.trail:setSpread(math.pi / 9)
+    self.trail:setSpread(0.001)
+    self.trail:setOffset(-1.25 * self.hitRadius, 16)
     self.trail:setSpeed(0.5 * self.speed)
     self.trail:setSizes(1, 1, 0)
     self.trail:setColors(255, 255, 255, 128, 255, 255, 255, 0)
@@ -164,15 +164,33 @@ function player:registerController(joystick)
     end
 end
 
+local flipflop = false
+
 function player:update(dt)
     local now = love.timer.getTime()
+    flipflop = not flipflop
 
     -- Update trail particle system
     self.trail:setPosition(self.body:getX(), self.body:getY())
     local vx, vy = self.body:getLinearVelocity()
     local vel_angle = math.atan2(vy, vx)
-    -- self.trail:setRotation(vel_angle)
-    self.trail:setDirection(self.body:getAngle() + math.pi)
+    self.body:setAngle(vel_angle)
+    self.body:setAngularVelocity(0)
+
+
+    local offset = (math.pi / 16) * math.cos(8 * now)
+    if flipflop then
+        offset = -offset
+    end
+
+    self.trail:setDirection(vel_angle + math.pi + offset)
+    -- if self.trail:isPaused() and math.sqrt(vx * vx + vy * vy) >= 100 then
+    --     -- self.trail:setEmissionRate(50)
+    --     self.trail:start()
+    -- else
+    --     -- self.trail:setEmissionRate(0)
+    --     self.trail:pause()
+    -- end
     self.trail:update(dt)
 
     -- Respawn player if needed
