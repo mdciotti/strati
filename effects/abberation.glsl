@@ -2,7 +2,7 @@ uniform float abberation;
 
 vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords)
 {
-    vec2 offset = vec2(abberation, 0);
+    vec2 offset = vec2(abberation / (screen_coords.x - 0.5), 0);
 
     vec4 red = texture2D(texture , texture_coords + offset);
     vec4 green = texture2D(texture, texture_coords);

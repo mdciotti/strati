@@ -85,7 +85,6 @@ function level:load()
     -- Create player
     self.player = entities.create('player', self.width / 2+1, self.height / 2+1)
     self.camera:follow(self.player)
-    self.warpGrid:register(self.player)
     -- self.player:respawn()
 end
 

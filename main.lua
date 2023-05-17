@@ -1,7 +1,7 @@
 require('level')
 require('entities')
 
-debugMode = false
+debugMode = true
 screenBuffer = nil
 glowShader = nil
 glowCanvas1 = nil
@@ -27,13 +27,13 @@ function love.load()
     -- The distance between samples taken for the blur
     glowShader:send('blurScale', 1)
     -- A scaling factor to control the strength of the blur (between 0 and 1)
-    glowShader:send('blurStrength', 0.3)
+    glowShader:send('blurStrength', 0.0)
     -- The size of a single pixel in the glowmap
     glowShader:send('texelSize', {1.0 / glowMap:getWidth(), 1.0 / glowMap:getHeight()})
 
     abberationShader = love.graphics.newShader('effects/abberation.glsl')
-    -- abberationShader:send('abberation', 2 / love.graphics.getWidth())
-    abberationShader:send('abberation', 0)
+    abberationShader:send('abberation', 1 / love.graphics.getWidth())
+    -- abberationShader:send('abberation', 0)
 
     entities.startup()
 
@@ -123,7 +123,7 @@ function love.draw()
     love.graphics.setCanvas()
 
     -- Draw normal
-    love.graphics.setBlendMode('screen')
+    love.graphics.setBlendMode('alpha')
     love.graphics.draw(screenBuffer)
 
     -- Draw glow
@@ -133,8 +133,22 @@ function love.draw()
     love.graphics.setShader()
 
     if debugMode then
+        -- love.graphics.setColor()
         love.graphics.setBlendMode('alpha')
+        local y = 2
         local fps = love.timer.getFPS()
-        love.graphics.print('FPS: ' .. fps, 2, 2)
+        love.graphics.print('FPS: ' .. fps, 2, y)
+
+        if level.warpGrid.manipulators ~= nil then
+            y = y + 16
+            love.graphics.print('WARP GRID', 2, y)
+            for id, enabled in pairs(level.warpGrid.manipulators) do
+                m = entities.get(id)
+                -- if m == nil or not enabled then break end
+                if m == nil then break end
+                y = y + 16
+                love.graphics.print('* ' .. m.type .. '(' .. m.id .. '): ' .. m.gridWarpFactor, 2, y)
+            end
+        end
     end
 end

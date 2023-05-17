@@ -3,18 +3,23 @@ local missile = entities.derive('base')
 missile.vertices = {0,16, 6,10, 6,-16, -6,-16, -6,10}
 
 function missile:load(x, y)
-    self.body = love.physics.newBody(level.world, x, y, 'dynamic')
-    self.shape = love.physics.newCircleShape(8)
-    self.fixture = love.physics.newFixture(self.body, self.shape, 0.5)
-    self.body:setBullet(true)
     self.thrust = 50
     self.speed = 4000
     self.birth = love.timer.getTime()
     self.owner = nil
     self._exploding = false
+
+    -- Set physical properties
+    self.body = love.physics.newBody(level.world, x, y, 'dynamic')
+    self.shape = love.physics.newCircleShape(8)
+    self.fixture = love.physics.newFixture(self.body, self.shape, 0.5)
+    self.body:setBullet(true)
+
+    -- Set grid warp
     self.gridWarpFactor = 1000
     self.gridWarpRadius = 50
     self.gridWarpRadiusSquared = self.gridWarpRadius * self.gridWarpRadius
+    level.warpGrid:register(self)
 
     -- Set up particle trail
     local trailParticle = love.graphics.newCanvas(10, 10)

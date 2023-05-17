@@ -1,4 +1,5 @@
 require('ndarray')
+inspect = require('inspect')
 
 Fabric = {}
 Fabric.__index = Fabric
@@ -59,26 +60,38 @@ function Fabric:calculateForce(node)
     local sum_fx = 0
     local sum_fy = 0
 
-    for id, enabled in pairs(self.manipulators) do
-        local manipulator = entities.get(id)
-        if manipulator == nil or enabled ~= true then
-            break
-        end
-        local dx = node.x - manipulator.body:getX()
-        local dy = node.y - manipulator.body:getY()
+    -- if node == self.nodes.data[1] then
+    --     print(inspect(self.manipulators))
+    -- end
+
+    -- for id, enabled in pairs(self.manipulators) do
+    for id, ent in pairs(entities.objects) do
+        -- local ent = entities.get(id)
+        -- if ent == nil or not enabled then break end
+        -- if ent == nil then break end
+        if self.manipulators[id] == nil then break end
+
+        -- Calculate distance from ent to node
+        local dx = node.x - ent.body:getX()
+        local dy = node.y - ent.body:getY()
         local dSquared = dx * dx + dy * dy
-        if dSquared > manipulator.gridWarpRadiusSquared then
-            break
-        end
-        local tSquared = dSquared / manipulator.gridWarpRadiusSquared
+        if dSquared > ent.gridWarpRadiusSquared then break end
+
+        local tSquared = dSquared / ent.gridWarpRadiusSquared
         local d = math.sqrt(dSquared)
         -- Bubble effect
-        local pull = manipulator.gridWarpFactor * math.sqrt(1 - tSquared)
+        local pull = ent.gridWarpFactor * math.sqrt(1 - tSquared)
         -- Gravity effect
-        -- local pull = manipulator.gridWarpFactor / dSquared
-        -- local pull = manipulator.gridWarpFactor / d
+        -- local pull = ent.gridWarpFactor / dSquared
+        -- local pull = ent.gridWarpFactor / d
         sum_fx = sum_fx + pull * dx / d
         sum_fy = sum_fy + pull * dy / d
+        -- local blackhole = ent.gridWarpFactor * -math.exp(-tSquared)
+        -- sum_fx = sum_fx + blackhole * dx / d
+        -- sum_fy = sum_fy + blackhole * dy / d
+        -- fx, fy = ent:warpGrid(t)
+        -- sum_fx = sum_fx + fx
+        -- sum_fy = sum_fy + fy
     end
 
     node.fx = node.fx + sum_fx
@@ -118,7 +131,7 @@ function Fabric:update(dt)
         end
     end
 
-    -- Horizontal pass 1
+    -- Horizontal pass 1 (even)
     for j = 0, self.rows, 1 do
         for i = 0, self.cols - 1, 2 do
             local A = self.nodes:get(i, j)
@@ -127,7 +140,7 @@ function Fabric:update(dt)
         end
     end
 
-    -- Horizontal pass 2
+    -- Horizontal pass 2 (odd)
     for j = 0, self.rows, 1 do
         for i = 1, self.cols - 1, 2 do
             local A = self.nodes:get(i, j)
@@ -136,7 +149,7 @@ function Fabric:update(dt)
         end
     end
 
-    -- Vertical pass 1
+    -- Vertical pass 1 (even)
     for i = 0, self.cols, 1 do
         for j = 0, self.rows - 1, 2 do
             local A = self.nodes:get(i, j)
@@ -145,7 +158,7 @@ function Fabric:update(dt)
         end
     end
 
-    -- Vertical pass 2
+    -- Vertical pass 2 (odd)
     for i = 0, self.cols, 1 do
         for j = 1, self.rows - 1, 2 do
             local A = self.nodes:get(i, j)

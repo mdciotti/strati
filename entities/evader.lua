@@ -14,6 +14,9 @@ function box:load(x, y)
     self.health = 5
     self.pid_x = PID.new(0.5, 0, 0.1)
     self.pid_y = PID.new(0.5, 0, 0.1)
+    self.pid_threshold = 128 * 128 -- radius pixels squared
+    self.pid_x2 = PID.new(-10.0, 0, 0)
+    self.pid_y2 = PID.new(-10.0, 0, 0)
     self.type = 'enemy'
 end
 
@@ -37,8 +40,19 @@ function box:update(dt)
 
     -- Follow player
     if self.target ~= nil then
-        local fx = self.pid_x:update(self.target.body:getX(), self.body:getX(), dt)
-        local fy = self.pid_y:update(self.target.body:getY(), self.body:getY(), dt)
+        local dx = self.body:getX() - self.target.body:getX()
+        local dy = self.body:getY() - self.target.body:getY()
+        local dSq = dx * dx + dy * dy
+        local fx, fy
+
+        if dSq >= self.pid_threshold then
+            fx = self.pid_x:update(self.target.body:getX(), self.body:getX(), dt)
+            fy = self.pid_y:update(self.target.body:getY(), self.body:getY(), dt)
+        else
+            fx = self.pid_x2:update(self.target.body:getX(), self.body:getX(), dt)
+            fy = self.pid_y2:update(self.target.body:getY(), self.body:getY(), dt)
+        end
+
         self.body:applyForce(fx, fy)
     else
         -- Wander?

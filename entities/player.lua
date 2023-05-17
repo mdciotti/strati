@@ -23,6 +23,8 @@ function player:load(x, y)
     self.respawnAt = 0
     self.alive = false
     self.birth = love.timer.getTime()
+
+    -- Set physical properties
     self.body = love.physics.newBody(level.world, x, y, 'dynamic')
     self.shape = love.physics.newCircleShape(self.hitRadius)
     self.fixture = love.physics.newFixture(self.body, self.shape, 0.25)
@@ -30,9 +32,12 @@ function player:load(x, y)
     self.fixture:setUserData('player')
     self.body:setFixedRotation(false)
     self.body:setLinearDamping(5)
+
+    -- Set grid warp
     self.gridWarpFactor = 500
     self.gridWarpRadius = 50
     self.gridWarpRadiusSquared = self.gridWarpRadius * self.gridWarpRadius
+    level.warpGrid:register(self)
 
     -- Set up particle trail
     local trailParticle = love.graphics.newCanvas(32, 32)
@@ -100,7 +105,6 @@ function player:fireMissile()
 
     local missile = entities.create('missile', x, y)
     missile:setOwner(self)
-    level.warpGrid:register(missile)
     missile.body:setAngle(theta - math.pi / 2)
     missile.body:setAngularVelocity(0)
     missile.body:setLinearVelocity(vx, vy)
